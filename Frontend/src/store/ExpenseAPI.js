@@ -6,7 +6,7 @@ export const expenseAPI = createApi({
   endpoints: (builder) => ({
     signup: builder.mutation({
       query: (data) => ({
-        url: 'signup',
+        url: 'user/signup',
         method: 'POST',
         body: data
       }),

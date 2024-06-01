@@ -41,10 +41,12 @@ const Signup = () => {
   return (
     <>
       {isLoading && <CustomLoading />}
-      {isError && <Toast
-        message={'Failed!!'}
-        severity={'failed'}
-      />}
+      {(isError || isSuccess)
+        &&
+        <Toast
+          message={`${isError ? 'Failed!!' : 'Successful!!'}`}
+          severity={`${isError ? 'failed' : 'success'}`}
+        />}
       <CustomPaper className='flex flex-col gap-4'>
         <Typography align='center' color='blue' variant='h5'>Signup</Typography>
         <CustomTextField
