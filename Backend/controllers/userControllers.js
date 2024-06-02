@@ -25,11 +25,11 @@ exports.loginUser = async (req, res, next) => {
     const user = await users.findOne({ where: { email: `${email}` } })
 
     if (user === null) {
-      res.status(403).json({ message: 'Email does not found!!' })
+      res.status(404).json({ message: 'User not found!!' })
     } else if (user.password !== password) {
-      res.status(403).json({ message: 'Password is Incorrect!!' })
+      res.status(401).json({ message: 'Password is Incorrect!!' })
     } else {
-      res.status(201).json({ response: user })
+      res.status(201).json({ message: 'User login successful', response: user })
     }
 
   } catch (err) {
