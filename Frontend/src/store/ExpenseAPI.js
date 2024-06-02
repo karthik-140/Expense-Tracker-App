@@ -10,8 +10,15 @@ export const expenseAPI = createApi({
         method: 'POST',
         body: data
       }),
-    })
+    }),
+    login: builder.mutation({
+      query: (data) => ({
+        url: 'user/login',
+        method: 'POST',
+        body: data
+      })
+    }),
   })
 })
 
-export const { useSignupMutation } = expenseAPI
+export const { useSignupMutation, useLoginMutation } = expenseAPI

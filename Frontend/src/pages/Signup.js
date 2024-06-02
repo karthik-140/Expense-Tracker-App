@@ -1,61 +1,83 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import CustomTextField from '../customComponents/CustomTextField'
 import { useForm } from 'react-hook-form'
 import CustomButton from '../customComponents/CustomButton'
 import CustomPaper from '../customComponents/CustomPaper'
-import { Typography } from '@mui/material'
+import { Link, Typography } from '@mui/material'
 import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from "yup"
 
-import { useSignupMutation } from '../store/ExpenseAPI'
+import { useSignupMutation, useLoginMutation } from '../store/ExpenseAPI'
 import CustomLoading from '../customComponents/CustomLoading'
 import Toast from '../customComponents/Toast'
-
-const schema = yup
-  .object({
-    name: yup
-      .string()
-      .required('Name is a required field')
-      .matches(/^[a-zA-Z\s]+$/, 'Only Alphabets are allowed for this field'),
-    email: yup
-      .string()
-      .required('Email is a required field')
-      .matches(
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        'Please provide valid email id'
-      ),
-    password: yup
-      .string()
-      .required('Password is a required field')
-  })
+import { signupSchema, loginSchema } from '../schemas/signupSchema'
 
 const Signup = () => {
-  const { control, handleSubmit, reset } = useForm({ resolver: yupResolver(schema) })
+  const [login, setLogin] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const [signup, { isSuccess, isLoading, isError }] = useSignupMutation()
+  const { control, handleSubmit, reset, register, unregister } = useForm({
+    resolver: yupResolver(!login ? signupSchema : loginSchema)
+  },)
+
+  const [signupUser, {
+    isSuccess: signupIsSuccess,
+    isLoading: signupIsLoading,
+    isError: signupIsError,
+  }] = useSignupMutation()
+
+  const [loginUser, {
+    isSuccess: loginIsSuccess,
+    isLoading: loginIsLoading,
+    isError: loginIsError,
+    error: loginError
+  }] = useLoginMutation()
+
+  useEffect(() => {
+    if (login) {
+      unregister('name')
+    } else {
+      register('name')
+    }
+  }, [login, register, unregister])
 
   const onSubmit = (data) => {
-    signup(data)
-    reset()
+    if (login) {
+      loginUser(data)
+    } else {
+      signupUser(data)
+      reset()
+    }
   }
+
+  useEffect(() => {
+    if (loginIsError) {
+      setErrorMessage(loginError?.data?.message)
+    } 
+  }, [loginIsError, loginError])
+
+  const loginHandler = () => {
+    setLogin(!login)
+  }
+
   return (
     <>
-      {isLoading && <CustomLoading />}
-      {(isError || isSuccess)
+      {(signupIsLoading || loginIsLoading) && <CustomLoading />}
+      {(signupIsError || signupIsSuccess || loginIsError || loginIsSuccess)
         &&
         <Toast
-          message={`${isError ? 'Failed!!' : 'Successful!!'}`}
-          severity={`${isError ? 'failed' : 'success'}`}
+          message={`${(signupIsError || loginIsError) ? 'Failed!!' : 'Successful!!'}`}
+          severity={`${(signupIsError || loginIsError) ? 'failed' : 'success'}`}
         />}
       <CustomPaper className='flex flex-col gap-4'>
-        <Typography align='center' color='blue' variant='h5'>Signup</Typography>
-        <CustomTextField
+        <Typography align='center' color='blue' variant='h5'>{login ? 'Login' : 'Signup'}</Typography>
+        {(login && loginIsError) && <span className='self-center text-red-500'>{errorMessage}</span>}
+        {!login && <CustomTextField
           className={'w-full'}
           name={'name'}
           label={'Name'}
           control={control}
           isRequired={true}
-        />
+        />}
         <CustomTextField
           name={'email'}
           label={'Email'}
@@ -74,6 +96,11 @@ const Signup = () => {
           variant={'contained'}
           onClick={handleSubmit(onSubmit)}
         />
+        <Typography className='self-center'>
+          {login
+            ? <>New user? <Link component={'button'} onClick={loginHandler}>Signup</Link></>
+            : <>Existing user? <Link component={'button'} onClick={loginHandler}>Login</Link></>}
+        </Typography>
       </CustomPaper>
     </>
   )
