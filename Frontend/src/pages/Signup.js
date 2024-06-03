@@ -48,7 +48,8 @@ const Signup = () => {
       const token = loginResponse?.data?.token
       localStorage.setItem('token', token)
     } else {
-      signupUser(data)
+      await signupUser(data)
+      setLogin(true)
       reset()
     }
   }
