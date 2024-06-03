@@ -9,6 +9,10 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
   const { data: expenses = [] } = useGetExpensesQuery()
   const [deleteExpense] = useDeleteExpenseMutation()
 
+  if (expenses?.response?.length === 0) {
+    return <h1 className="text-center font-bold">No Expenses Found!!</h1>
+  }
+
   const deleteExpenseHandler = (id) => {
     deleteExpense(id)
   }

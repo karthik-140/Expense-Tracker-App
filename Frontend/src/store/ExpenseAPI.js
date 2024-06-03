@@ -1,8 +1,20 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+// const token = localStorage.getItem('token')
+const getToken = () => localStorage.getItem('token')
+
 export const expenseAPI = createApi({
   reducerPath: 'expenseAPI',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3001/' }),
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: 'http://localhost:3001/',
+    // prepareHeaders: (headers) => {
+    //   const token = getToken()
+    //   if (token) {
+    //     headers.set('Authorization', token)
+    //   }
+    //   return headers
+    // }
+   }),
   endpoints: (builder) => ({
     signup: builder.mutation({
       query: (data) => ({
@@ -19,9 +31,9 @@ export const expenseAPI = createApi({
       })
     }),
     getExpenses: builder.query({
-      query: (filters) => ({
+      query: () => ({
         url: 'expense',
-        params: filters
+        headers: { 'Authorization': getToken() },
       }),
       providesTags: ['Expenses']
     }),
@@ -29,7 +41,8 @@ export const expenseAPI = createApi({
       query: (data) => ({
         url: 'expense/addExpense',
         method: 'POST',
-        body: data
+        body: data,
+        headers: { 'Authorization': getToken() },
       }),
       invalidatesTags: ['Expenses']
     }),
@@ -37,6 +50,7 @@ export const expenseAPI = createApi({
       query: (id) => ({
         url: `expense/${id}`,
         method: 'DELETE',
+        headers: { 'Authorization': getToken() },
       }),
       invalidatesTags: ['Expenses']
     }),

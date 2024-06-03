@@ -42,9 +42,11 @@ const Signup = () => {
     }
   }, [login, register, unregister])
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (login) {
-      loginUser(data)
+      const loginResponse = await loginUser(data)
+      const token = loginResponse?.data?.token
+      localStorage.setItem('token', token)
     } else {
       signupUser(data)
       reset()
@@ -54,7 +56,7 @@ const Signup = () => {
   useEffect(() => {
     if (loginIsError) {
       setErrorMessage(loginError?.data?.message)
-    } 
+    }
   }, [loginIsError, loginError])
 
   useEffect(() => {

@@ -4,7 +4,7 @@ exports.addExpense = async (req, res, next) => {
   console.log('reqBody', req.body)
   try {
     const { amount, description, category } = req.body;
-    const response = await expenses.create({ amount, description, category })
+    const response = await expenses.create({ amount, description, category, userId: req.user.id })
     if (response) {
       res.status(201).json({ message: 'Expense added successfully!!', response })
     } else {
@@ -18,7 +18,7 @@ exports.addExpense = async (req, res, next) => {
 
 exports.getExpenses = async (req, res, next) => {
   try {
-    const response = await expenses.findAll()
+    const response = await expenses.findAll({ where: { userId: req.user.id } })
     if (response) {
       res.status(200).json({ message: 'Expenses fetched successfully!!', response })
     } else {
@@ -33,7 +33,7 @@ exports.getExpenses = async (req, res, next) => {
 exports.deleteExpense = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const response = await expenses.destroy({ where: { id: id } })
+    const response = await expenses.destroy({ where: { id: id, userId: req.user.id } })
     if (response) {
       console.log('deleteResponse', response)
       res.status(200).json({ message: 'Expense deleted successfully!!', response })
