@@ -18,7 +18,35 @@ export const expenseAPI = createApi({
         body: data
       })
     }),
+    getExpenses: builder.query({
+      query: (filters) => ({
+        url: 'expense',
+        params: filters
+      }),
+      providesTags: ['Expenses']
+    }),
+    addExpense: builder.mutation({
+      query: (data) => ({
+        url: 'expense/addExpense',
+        method: 'POST',
+        body: data
+      }),
+      invalidatesTags: ['Expenses']
+    }),
+    deleteExpense: builder.mutation({
+      query: (id) => ({
+        url: `expense/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Expenses']
+    }),
   })
 })
 
-export const { useSignupMutation, useLoginMutation } = expenseAPI
+export const {
+  useSignupMutation,
+  useLoginMutation,
+  useAddExpenseMutation,
+  useGetExpensesQuery,
+  useDeleteExpenseMutation,
+} = expenseAPI

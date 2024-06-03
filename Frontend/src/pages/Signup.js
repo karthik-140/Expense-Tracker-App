@@ -5,6 +5,7 @@ import CustomButton from '../customComponents/CustomButton'
 import CustomPaper from '../customComponents/CustomPaper'
 import { Link, Typography } from '@mui/material'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useNavigate } from 'react-router-dom'
 
 import { useSignupMutation, useLoginMutation } from '../store/ExpenseAPI'
 import CustomLoading from '../customComponents/CustomLoading'
@@ -14,6 +15,7 @@ import { signupSchema, loginSchema } from '../schemas/signupSchema'
 const Signup = () => {
   const [login, setLogin] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const navigate = useNavigate()
 
   const { control, handleSubmit, reset, register, unregister } = useForm({
     resolver: yupResolver(!login ? signupSchema : loginSchema)
@@ -54,6 +56,12 @@ const Signup = () => {
       setErrorMessage(loginError?.data?.message)
     } 
   }, [loginIsError, loginError])
+
+  useEffect(() => {
+    if (loginIsSuccess) {
+      navigate('/expense')
+    }
+  }, [loginIsSuccess, navigate])
 
   const loginHandler = () => {
     setLogin(!login)
