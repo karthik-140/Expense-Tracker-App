@@ -21,6 +21,9 @@ const users = sequelize.define('users', {
   password: {
     type: Sequelize.STRING,
     allowNull: false
+  },
+  isPremiumUser: {
+    type: Sequelize.BOOLEAN
   }
 })
 

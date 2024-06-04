@@ -6,16 +6,19 @@ import CustomPaper from '../customComponents/CustomPaper'
 import { Link, Typography } from '@mui/material'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 
 import { useSignupMutation, useLoginMutation } from '../store/ExpenseAPI'
 import CustomLoading from '../customComponents/CustomLoading'
 import Toast from '../customComponents/Toast'
 import { signupSchema, loginSchema } from '../schemas/signupSchema'
+import { userActions } from '../store/userSlice'
 
 const Signup = () => {
   const [login, setLogin] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const { control, handleSubmit, reset, register, unregister } = useForm({
     resolver: yupResolver(!login ? signupSchema : loginSchema)
@@ -47,6 +50,7 @@ const Signup = () => {
       const loginResponse = await loginUser(data)
       const token = loginResponse?.data?.token
       localStorage.setItem('token', token)
+      dispatch(userActions.setPremiumUser(true))
     } else {
       await signupUser(data)
       setLogin(true)
