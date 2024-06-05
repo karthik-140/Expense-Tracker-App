@@ -2,7 +2,6 @@ import { Table, TableHead, TableBody, TableCell, TableRow, Button } from "@mui/m
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { useDeleteExpenseMutation, useGetExpensesQuery } from "../../api/ExpenseAPI"
-import { useGetLeaderboardQuery } from "../../api/PremiumAPI";
 import CustomPaper from "../../customComponents/CustomPaper";
 
 const headers = [
@@ -16,7 +15,6 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
 
   const { data: expenses = [] } = useGetExpensesQuery()
   const [deleteExpense] = useDeleteExpenseMutation()
-  const { refetch: refetchLeaderboard } = useGetLeaderboardQuery()
 
   if (expenses?.response?.length === 0) {
     return <h1 className="text-center font-bold">No Expenses Found!!</h1>
@@ -25,7 +23,6 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
   const deleteExpenseHandler = async (id) => {
     try {
       await deleteExpense(id)
-      refetchLeaderboard()
     } catch (err) {
       console.log('Failed to delete expense!!', err)
     }

@@ -2,7 +2,7 @@ import { Table, TableHead, TableBody, TableCell, TableRow, Button } from "@mui/m
 import { useDispatch } from "react-redux"
 
 import CustomPaper from "../../customComponents/CustomPaper"
-import { useGetLeaderboardQuery } from "../../api/PremiumAPI"
+import { useGetLeaderboardQuery } from "../../api/ExpenseAPI"
 import { expenseActions } from "../../store/expenseSlice"
 
 const headers = [

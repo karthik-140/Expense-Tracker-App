@@ -28,6 +28,12 @@ export const expenseAPI = createApi({
       }),
       invalidatesTags: ['Expenses', 'Leaderboard']
     }),
+    getLeaderboard: builder.query({
+      query: () => ({
+        url: 'premium/leaderboard'
+      }),
+      providesTags: ['Leaderboard']
+    })
   })
 })
 
@@ -35,4 +41,5 @@ export const {
   useAddExpenseMutation,
   useGetExpensesQuery,
   useDeleteExpenseMutation,
+  useGetLeaderboardQuery,
 } = expenseAPI
