@@ -6,9 +6,11 @@ const isNotValidString = (value) => {
   return !!(value === undefined || value.length === 0);
 }
 
-const generateAccessToken = (id, name) => {
-  return jwt.sign({ userId: id, name: name }, 'secretKey')
+const generateAccessToken = (id, name, isPremiumUser) => {
+  return jwt.sign({ userId: id, name: name, isPremiumUser }, 'secretKey')
 }
+
+exports.generateAccessToken = generateAccessToken;
 
 exports.singupUser = (req, res, next) => {
   try {
@@ -51,7 +53,7 @@ exports.loginUser = async (req, res, next) => {
         res.status(500).json({ message: 'something went wrong!!' });
       }
       if (response) {
-        res.status(200).json({ message: 'User login successful', response: user, token: generateAccessToken(user.id, user.name) })
+        res.status(200).json({ message: 'User login successful', response: user, token: generateAccessToken(user.id, user.name, user.isPremiumUser) })
       } else {
         res.status(400).json({ message: 'Password is Incorrect!!' })
       }
