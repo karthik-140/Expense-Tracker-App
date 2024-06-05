@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { useLazyGetPremiumQuery, useUpdateTransactionStatusMutation } from '../api/PurchaseAPI'
 import { userActions } from '../store/userSlice'
+import { expenseActions } from '../store/expenseSlice'
 
 const Header = () => {
   const location = useLocation()
@@ -47,6 +48,10 @@ const Header = () => {
     })
   }
 
+  const leaderboardHandler = () => {
+    dispatch(expenseActions.setShowLeaderboard(true))
+  }
+
   return (
     <header className="flex justify-center py-4 text-center text-white font-bold text-xl bg-blue-600">
       <nav className='align-center'>
@@ -55,7 +60,16 @@ const Header = () => {
       {showLogout &&
         <div className='text-white flex gap-4 absolute right-8'>
           {isPremiumUser
-            ? <h1 className='text-orange-400'>You are a Premium user!!</h1>
+            ?
+            <>
+              <h1 className='text-orange-400'>You are a Premium user!!</h1>
+              <button
+                className='hover:text-blue-200'
+                onClick={leaderboardHandler}
+              >
+                Leaderboard
+              </button>
+            </>
             : <button
               className='hover:text-blue-200'
               onClick={redirectToRazorpayHandler}

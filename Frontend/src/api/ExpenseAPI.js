@@ -5,6 +5,7 @@ import CustomFetchBaseQuery from './CustomFetchBaseQuery'
 export const expenseAPI = createApi({
   reducerPath: 'expenseAPI',
   baseQuery: CustomFetchBaseQuery,
+  tagTypes: ['Expenses', 'Leaderboard'],
   endpoints: (builder) => ({
     getExpenses: builder.query({
       query: () => ({
@@ -18,14 +19,14 @@ export const expenseAPI = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Expenses']
+      invalidatesTags: ['Expenses', 'Leaderboard']
     }),
     deleteExpense: builder.mutation({
       query: (id) => ({
         url: `expense/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Expenses']
+      invalidatesTags: ['Expenses', 'Leaderboard']
     }),
   })
 })

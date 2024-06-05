@@ -9,6 +9,7 @@ import CustomDropdown from "../../customComponents/CustomDropdown"
 import { useAddExpenseMutation } from "../../api/ExpenseAPI"
 import Toast from '../../customComponents/Toast'
 import CustomLoading from "../../customComponents/CustomLoading"
+import { useGetLeaderboardQuery } from "../../api/PremiumAPI"
 
 const categoryOptions = [
   { label: 'Travel', value: 'travel' },
@@ -26,9 +27,15 @@ const ExpenseForm = ({ showExpensesHandler }) => {
   })
 
   const [addExpense, { isError, isLoading, isSuccess }] = useAddExpenseMutation()
+  const { refetch: refetchLeaderboard } = useGetLeaderboardQuery()
 
-  const onSubmit = (expense) => {
-    addExpense(expense)
+  const onSubmit = async (expense) => {
+    try {
+      await addExpense(expense)
+      refetchLeaderboard()
+    } catch (err) {
+      console.log('Failed to add expense!!', err)
+    }
     reset()
   }
 

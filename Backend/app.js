@@ -8,6 +8,7 @@ const sequelize = require('./util/database');
 const userRoutes = require('./routes/user');
 const expenseRoutes = require('./routes/expense');
 const purchaseRoutes = require('./routes/purchase');
+const premiumRoutes = require('./routes/premium');
 
 const users = require('./models/users');
 const expenses = require('./models/expenses');
@@ -22,6 +23,7 @@ app.use(bodyParser.json({ extended: false }));
 app.use('/user', userRoutes);
 app.use('/expense', expenseRoutes);
 app.use('/purchase', purchaseRoutes);
+app.use('/premium', premiumRoutes);
 
 users.hasMany(expenses);
 expenses.belongsTo(users);
