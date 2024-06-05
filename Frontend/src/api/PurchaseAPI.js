@@ -1,25 +1,14 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
-// const token = localStorage.getItem('token')
-const getToken = () => localStorage.getItem('token')
+import CustomFetchBaseQuery from './CustomFetchBaseQuery';
 
 export const purchaseAPI = createApi({
   reducerPath: 'purchaseAPI',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3001/',
-    // prepareHeaders: (headers) => {
-    //   const token = getToken()
-    //   if (token) {
-    //     headers.set('Authorization', token)
-    //   }
-    //   return headers
-    // }
-  }),
+  baseQuery: CustomFetchBaseQuery,
   endpoints: (builder) => ({
     getPremium: builder.query({
       query: () => ({
         url: 'purchase/premiumMembership',
-        headers: { 'Authorization': getToken() }
       }),
     }),
     updateTransactionStatus: builder.mutation({
@@ -27,7 +16,6 @@ export const purchaseAPI = createApi({
         url: 'purchase/updateTransactionStatus',
         method: 'POST',
         body: data,
-        headers: { 'Authorization': getToken() }
       })
     })
   })

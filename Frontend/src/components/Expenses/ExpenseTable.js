@@ -1,7 +1,7 @@
 import { Table, TableHead, TableBody, TableCell, TableRow, Button } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { useDeleteExpenseMutation, useGetExpensesQuery } from "../../store/ExpenseAPI"
+import { useDeleteExpenseMutation, useGetExpensesQuery } from "../../api/ExpenseAPI"
 import CustomPaper from "../../customComponents/CustomPaper";
 
 const ExpenseTable = ({ setShowExpenseTable }) => {

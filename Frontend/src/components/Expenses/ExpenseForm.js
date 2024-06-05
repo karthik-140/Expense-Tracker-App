@@ -6,7 +6,7 @@ import { expenseSchema } from "../../schemas/expenseSchema"
 import CustomPaper from "../../customComponents/CustomPaper"
 import CustomTextField from "../../customComponents/CustomTextField"
 import CustomDropdown from "../../customComponents/CustomDropdown"
-import { useAddExpenseMutation } from "../../store/ExpenseAPI"
+import { useAddExpenseMutation } from "../../api/ExpenseAPI"
 import Toast from '../../customComponents/Toast'
 import CustomLoading from "../../customComponents/CustomLoading"
 

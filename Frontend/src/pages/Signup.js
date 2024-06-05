@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 
-import { useSignupMutation, useLoginMutation } from '../store/ExpenseAPI'
+import { useSignupMutation, useLoginMutation } from '../api/UserAPI'
 import CustomLoading from '../customComponents/CustomLoading'
 import Toast from '../customComponents/Toast'
 import { signupSchema, loginSchema } from '../schemas/signupSchema'
@@ -50,7 +50,8 @@ const Signup = () => {
       const loginResponse = await loginUser(data)
       const token = loginResponse?.data?.token
       localStorage.setItem('token', token)
-      dispatch(userActions.setPremiumUser(true))
+      const isPremiumUser = loginResponse?.data?.response?.isPremiumUser === true
+      dispatch(userActions.setPremiumUser(isPremiumUser))
     } else {
       await signupUser(data)
       setLogin(true)
