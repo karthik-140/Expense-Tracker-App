@@ -1,28 +1,29 @@
 const expenses = require('../models/expenses');
 const users = require('../models/users');
+const sequelize = require('../util/database');
 
 exports.addExpense = async (req, res, next) => {
+  const t = await sequelize.transaction()
   try {
     const { amount, description, category } = req.body;
     const totalExpense = Number(req.user.totalExpenses) + Number(amount)
 
-    const expense = await expenses.create({ amount, description, category, userId: req.user.id })
-    const user = await users.update(
+    const expense = await expenses.create(
+      { amount, description, category, userId: req.user.id },
+      { transaction: t }
+    )
+    await users.update(
       { totalExpenses: totalExpense },
-      { where: { id: req.user.id } }
+      { where: { id: req.user.id }, transaction: t },
     )
 
-    Promise.all([expense, user])
-      .then(() => {
-        res.status(201).json({ message: 'Expense added successfully!!', expense })
-      }).catch((err) => {
-        console.log('something went wrong!!', err)
-        res.status(400).json({ message: 'Something went wrong!!', err })
-      })
+    await t.commit()
+    res.status(201).json({ message: 'Expense added successfully!!', expense })
 
   } catch (err) {
-    console.log('Server error!!', err);
-    res.status(500).json({ message: 'Server error!!', details: err })
+    await t.rollback()
+    console.log('something went wrong!!', err)
+    res.status(400).json({ message: 'Something went wrong!!', err })
   }
 }
 
@@ -41,26 +42,36 @@ exports.getExpenses = async (req, res, next) => {
 }
 
 exports.deleteExpense = async (req, res, next) => {
+  const t = await sequelize.transaction()
   try {
     const { id } = req.params;
     const { amount } = req.body
     const updateTotalExpense = Number(req.user.totalExpenses) - Number(amount)
 
-    const deleteExpense = await expenses.destroy({ where: { id: id, userId: req.user.id } })
-    const updateUser = users.update(
+    const response = await expenses.destroy(
+      {
+        where: { id: id, userId: req.user.id },
+        transaction: t
+      })
+
+    if (response === 0) {
+      await t.rollback()
+      return res.status(404).json({ message: 'Expense not found!!' })
+    }
+
+    await users.update(
       { totalExpenses: updateTotalExpense },
-      { where: { id: req.user.id } }
+      {
+        where: { id: req.user.id },
+        transaction: t
+      }
     )
 
-    Promise.all([deleteExpense, updateUser])
-    .then(() => {
-      res.status(200).json({ message: 'Expense deleted successfully!!', response: deleteExpense })
-    })
-    .catch((err) => {
-      res.status(204).json({ message: 'Something went wrong!!', details: err })
-    })
+    await t.commit()
+    res.status(200).json({ message: 'Expense deleted successfully!!' })
 
   } catch (err) {
+    t.rollback()
     console.log('Server error!!', err);
     res.status(500).json({ message: 'Server error!!', details: err })
   }
