@@ -25,7 +25,7 @@ const Leaderboard = () => {
         {headers.map((header, idx) => (
           header.field === 's.no'
             ? <TableCell key={'row'} align="center">{index + 1}</TableCell>
-            : <TableCell key={`row-${idx}`} align="center">{user[header.field]}</TableCell>
+            : <TableCell key={`row-${idx}`} align="center">{user[header.field] || 0}</TableCell>
         ))}
       </TableRow>
     )
