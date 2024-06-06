@@ -13,10 +13,12 @@ import CustomLoading from '../customComponents/CustomLoading'
 import Toast from '../customComponents/Toast'
 import { signupSchema, loginSchema } from '../schemas/signupSchema'
 import { userActions } from '../store/userSlice'
+import ForgotPassword from '../components/landing/ForgotPassword'
 
 const Signup = () => {
   const [login, setLogin] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [forgotPassword, setForgotPassword] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -75,6 +77,10 @@ const Signup = () => {
     setLogin(!login)
   }
 
+  const modalCloseHandler = () => {
+    setForgotPassword(false)
+  }
+
   return (
     <>
       {(signupIsLoading || loginIsLoading) && <CustomLoading />}
@@ -112,11 +118,17 @@ const Signup = () => {
           variant={'contained'}
           onClick={handleSubmit(onSubmit)}
         />
-        <Typography className='self-center'>
+        <div className='self-center'>
           {login
-            ? <>New user? <Link component={'button'} onClick={loginHandler}>Signup</Link></>
-            : <>Existing user? <Link component={'button'} onClick={loginHandler}>Login</Link></>}
-        </Typography>
+            ?
+            <div className='flex flex-col gap-2 items-center'>
+              <Typography>Forgot password? <Link component={'button'} onClick={() => setForgotPassword(true)}>Click here</Link></Typography>
+              <Typography>New user? <Link component={'button'} onClick={loginHandler}>Signup</Link></Typography>
+            </div>
+            :
+            <Typography>Existing user? <Link component={'button'} onClick={loginHandler}>Login</Link></Typography>}
+        </div>
+        {forgotPassword && <ForgotPassword modalOpen={forgotPassword} modalCloseHandler={modalCloseHandler} />}
       </CustomPaper>
     </>
   )

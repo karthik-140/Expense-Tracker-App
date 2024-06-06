@@ -7,8 +7,8 @@ const userController = require('./userControllers');
 exports.purchasePremium = (req, res, next) => {
   try {
     const rzp = new Razorpay({
-      key_id: 'rzp_test_ORIjJaCANSh1SH',
-      key_secret: '3SyRm9wEPXjekayVgr2S1WND'
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
     })
     const amount = 5000;
     rzp.orders.create({ amount, currency: 'INR' }, (err, order) => {

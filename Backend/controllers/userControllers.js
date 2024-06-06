@@ -1,6 +1,7 @@
 const users = require('../models/users');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Sib = require('sib-api-v3-sdk');
 
 const isNotValidString = (value) => {
   return !!(value === undefined || value.length === 0);
@@ -58,6 +59,42 @@ exports.loginUser = async (req, res, next) => {
         res.status(400).json({ message: 'Password is Incorrect!!' })
       }
     })
+
+  } catch (err) {
+    console.log('Server Error!!', err)
+    res.status(500).json({ message: 'Server Error!!', details: err })
+  }
+}
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body
+    const client = Sib.ApiClient.instance
+
+    const apiKey = client.authentications['api-key']
+    apiKey.apiKey = process.env.API_KEY
+
+    const tranEmailApi = new Sib.TransactionalEmailsApi()
+
+    const sender = {
+      email: 'karthikshanigaram01@gmail.com'
+    }
+
+    const receiver = [
+      { email: email },
+    ]
+
+    const result = await tranEmailApi.sendTransacEmail({
+      sender,
+      to: receiver,
+      subject: 'Password reset mail',
+      textContent: `
+        Click the link to reset your password.
+      `
+    })
+
+    console.log('sib---> ', result)
+    res.status(200).json({ message: 'Link to reset password sent to your mail!!' })
 
   } catch (err) {
     console.log('Server Error!!', err)
