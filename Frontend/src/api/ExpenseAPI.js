@@ -22,9 +22,10 @@ export const expenseAPI = createApi({
       invalidatesTags: ['Expenses', 'Leaderboard']
     }),
     deleteExpense: builder.mutation({
-      query: (id) => ({
-        url: `expense/${id}`,
+      query: (expense) => ({
+        url: `expense/${expense.id}`,
         method: 'DELETE',
+        body: expense,
       }),
       invalidatesTags: ['Expenses', 'Leaderboard']
     }),

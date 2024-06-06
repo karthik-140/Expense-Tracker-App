@@ -20,9 +20,9 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
     return <h1 className="text-center font-bold">No Expenses Found!!</h1>
   }
 
-  const deleteExpenseHandler = async (id) => {
+  const deleteExpenseHandler = async (expense) => {
     try {
-      await deleteExpense(id)
+      await deleteExpense(expense)
     } catch (err) {
       console.log('Failed to delete expense!!', err)
     }
@@ -39,7 +39,7 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
         <TableCell align="center">
           <DeleteIcon
             className='cursor-pointer text-red-500 hover:text-red-600'
-            onClick={() => deleteExpenseHandler(expense.id)}
+            onClick={() => deleteExpenseHandler(expense)}
           />
         </TableCell>
       </TableRow>
