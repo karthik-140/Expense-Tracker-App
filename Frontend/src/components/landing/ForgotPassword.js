@@ -1,4 +1,4 @@
-import { Box, Button, Modal } from "@mui/material"
+import { Box, Button, Modal, Alert } from "@mui/material"
 import CloseIcon from '@mui/icons-material/Close';
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm } from "react-hook-form"
@@ -9,16 +9,16 @@ import { useForgotPasswordMutation } from "../../api/UserAPI";
 
 const ForgotPassword = ({ modalOpen, modalCloseHandler }) => {
 
-  const { control, handleSubmit } = useForm(
+  const { control, handleSubmit, reset } = useForm(
     { resolver: yupResolver(forgotPasswordSchema) }
   )
 
-  const [forgotPassword] = useForgotPasswordMutation()
+  const [forgotPassword, { isSuccess, isError }] = useForgotPasswordMutation()
 
   const onSubmit = async (data) => {
-    console.log(data)
     try {
       await forgotPassword(data)
+      reset()
     } catch (err) {
       console.error(err)
     }
@@ -36,6 +36,10 @@ const ForgotPassword = ({ modalOpen, modalCloseHandler }) => {
           className="absolute right-4 top-4 text-gray-500 cursor-pointer"
           onClick={modalCloseHandler}
         />
+        {(isSuccess || isError) &&
+          <Alert className='self-center' severity={`${isSuccess ? 'info' : 'error'}`}>
+            {`${isSuccess ? 'Link to Reset Password is sent to your Mail!!' : 'User not found!!'}`}
+          </Alert>}
         <CustomTextField
           name={'email'}
           label={'Enter your email'}

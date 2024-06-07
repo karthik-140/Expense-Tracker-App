@@ -2,6 +2,9 @@ const users = require('../models/users');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Sib = require('sib-api-v3-sdk');
+const uuid = require('uuid');
+const ForgotPasswordRequests = require('../models/forgotPasswordRequests');
+const sequelize = require('../util/database');
 
 const isNotValidString = (value) => {
   return !!(value === undefined || value.length === 0);
@@ -67,36 +70,101 @@ exports.loginUser = async (req, res, next) => {
 }
 
 exports.forgotPassword = async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     const { email } = req.body
-    const client = Sib.ApiClient.instance
 
-    const apiKey = client.authentications['api-key']
-    apiKey.apiKey = process.env.API_KEY
+    const user = await users.findOne({ where: { email: email } })
 
-    const tranEmailApi = new Sib.TransactionalEmailsApi()
+    if (user) {
+      console.log('user ----->', user)
+      const id = uuid.v4();
 
-    const sender = {
-      email: 'karthikshanigaram01@gmail.com'
+      await ForgotPasswordRequests.create(
+        { id, userId: user.id, active: true },
+        { transaction: t }
+      )
+      // else {
+      //   return res.status(404).json({ message: 'User not found' });
+      // }
+
+      const client = Sib.ApiClient.instance
+
+      const apiKey = client.authentications['api-key']
+      apiKey.apiKey = process.env.API_KEY
+
+      const tranEmailApi = new Sib.TransactionalEmailsApi()
+
+      const sender = {
+        email: 'karthikshanigaram01@gmail.com'
+      }
+
+      const receiver = [
+        { email: email },
+      ]
+
+      const result = await tranEmailApi.sendTransacEmail({
+        sender,
+        to: receiver,
+        subject: 'Password reset mail',
+        textContent: `
+        Click the link to reset your password.
+      `,
+        htmlContent: `
+       <h1>Click on the below link to reset your password.</h1>
+       <a href='http://localhost:3000/user/password/resetPassword/${id}'>Reset Password<a/>
+      `
+      })
+
+      console.log('sib---> ', result)
+      await t.commit();
+      res.status(200).json({ message: 'Link to reset password sent to your mail!!' })
+
+    } else {
+      console.log('User not found')
+      return res.status(404).json({ message: 'User not found' });
+    }
+  } catch (err) {
+    await t.rollback();
+    console.log('Server Error!!', err)
+    res.status(500).json({ message: 'Server Error!!', details: err })
+  }
+}
+
+exports.resetPassword = async (req, res, next) => {
+  const t = await sequelize.transaction();
+  try {
+    console.log('reqBody ----> ', req.body)
+    console.log('reqParams ----> ', req.params)
+    console.log('reqParams ----> ', req.query)
+    const { password } = req.body
+    const { id } = req.params
+
+    const forgotPasswordRequest = await ForgotPasswordRequests.findOne({ where: { id: id } })
+
+    if (forgotPasswordRequest.active) {
+      const user = await users.findOne({ where: { id: forgotPasswordRequest.userId } })
+
+      const saltRounds = 10;
+      bcrypt.hash(password, saltRounds, async (err, hash) => {
+
+        if (err) {
+          console.log('hashErr', err)
+          throw new Error(err)
+        }
+
+        await user.update({ password: hash }, { transaction: t })
+        await forgotPasswordRequest.update({ active: false }, { transaction: t })
+
+        t.commit();
+        res.status(201).json({ message: 'Password changed successfully!!' });
+      })
+    } else {
+      res.status(404).json({ message: 'Bad request!!' })
     }
 
-    const receiver = [
-      { email: email },
-    ]
-
-    const result = await tranEmailApi.sendTransacEmail({
-      sender,
-      to: receiver,
-      subject: 'Password reset mail',
-      textContent: `
-        Click the link to reset your password.
-      `
-    })
-
-    console.log('sib---> ', result)
-    res.status(200).json({ message: 'Link to reset password sent to your mail!!' })
-
   } catch (err) {
+    await t.rollback();
     console.log('Server Error!!', err)
     res.status(500).json({ message: 'Server Error!!', details: err })
   }

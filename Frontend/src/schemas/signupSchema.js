@@ -42,3 +42,14 @@ export const forgotPasswordSchema = yup
         'Please provide valid email id'
       ),
   })
+
+export const resetPasswordSchema = yup
+  .object({
+    password: yup
+      .string()
+      .required('New Password is a required field'),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('password')], 'Passwords must match')
+      .required('Confirm New Password is a required field'),
+  })
