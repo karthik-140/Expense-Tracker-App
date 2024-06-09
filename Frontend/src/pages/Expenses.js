@@ -2,6 +2,7 @@ import { useState } from "react"
 
 import ExpenseForm from "../components/Expenses/ExpenseForm"
 import ExpenseTable from "../components/Expenses/ExpenseTable"
+import DowloadedFiles from "../components/Expenses/DowloadedFiles"
 
 const Expenses = () => {
   const [showExpenseTable, setShowExpenseTable] = useState(false)
@@ -16,9 +17,11 @@ const Expenses = () => {
         showExpensesHandler={showExpensesHandler}
       />
       {showExpenseTable &&
-        <ExpenseTable
-          setShowExpenseTable={setShowExpenseTable}
-        />}
+        <>
+          <ExpenseTable setShowExpenseTable={setShowExpenseTable} />
+          <DowloadedFiles />
+        </>
+      }
     </>
   )
 }

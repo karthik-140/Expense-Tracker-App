@@ -113,13 +113,15 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
             {displayExpenseRows}
           </TableBody>
         </Table>
-        <Button
-          className='self-center'
-          variant="outlined"
-          onClick={() => setShowExpenseTable(false)}
-        >
-          Close
-        </Button>
+        <div className="flex gap-4 self-center">
+          <Button
+            // className='self-center'
+            variant="outlined"
+            onClick={() => setShowExpenseTable(false)}
+          >
+            Close
+          </Button>
+        </div>
       </TableContainer>
       {(isError || isSuccess)
         &&

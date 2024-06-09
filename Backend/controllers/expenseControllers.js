@@ -1,7 +1,9 @@
+const AWS = require('aws-sdk');
+
+const sequelize = require('../util/database');
 const expenses = require('../models/expenses');
 const users = require('../models/users');
-const sequelize = require('../util/database');
-const AWS = require('aws-sdk');
+const DownloadedFiles = require('../models/downloadedFiles');
 
 const uploadToS3 = (data, fileName) => {
   const BUCKET_NAME = process.env.BUCKET_NAME
@@ -109,6 +111,7 @@ exports.deleteExpense = async (req, res, next) => {
 }
 
 exports.downloadExpenses = async (req, res, next) => {
+  const t = await sequelize.transaction()
   try {
     const expenses = await req.user.getExpenses({
       attributes: ['amount', 'description', 'category']
@@ -118,9 +121,28 @@ exports.downloadExpenses = async (req, res, next) => {
     const userId = req.user.id
     const fileName = `Expense${userId}/${new Date()}.txt`
     const fileUrl = await uploadToS3(stringifiedExpenses, fileName)
-    res.status(200).json({ fileUrl, success: true })
+  
+    if (fileUrl) {
+      await DownloadedFiles.create({ userId, fileUrl }, { transaction: t })
+      await t.commit()
+      res.status(200).json({ fileUrl, success: true })
+    } else {
+      await t.rollback()
+      res.status(404).json({ message: 'Something went wrong!!', success: false })
+    }
   } catch (err) {
     console.log(err);
+    res.status(500).json({ message: 'Server error!!', details: err })
+  }
+}
+
+exports.getDownloadedExpenses = async (req, res, next) => {
+  try {
+    const userId = req.user.id
+    const downloadedFiles = await DownloadedFiles.findAll({ where: { userId }})
+    res.status(200).json(downloadedFiles)
+  } catch (err) {
+    console.log('Server error!!', err);
     res.status(500).json({ message: 'Server error!!', details: err })
   }
 }

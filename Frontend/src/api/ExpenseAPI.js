@@ -40,6 +40,11 @@ export const expenseAPI = createApi({
         url: 'expense/download',
       })
     }),
+    getDownloadedFiles: builder.query({
+      query: () => ({
+        url: 'expense/getDownloadedExpenses'
+      })
+    }) 
   })
 })
 
@@ -49,4 +54,5 @@ export const {
   useDeleteExpenseMutation,
   useGetLeaderboardQuery,
   useLazyDownloadExpensesQuery,
+  useGetDownloadedFilesQuery,
 } = expenseAPI

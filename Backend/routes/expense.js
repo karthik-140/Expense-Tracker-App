@@ -14,4 +14,6 @@ router.post('/addExpense', userAuthentication.authenticate, expenseControllers.a
 
 router.get('/download', userAuthentication.authenticate, expenseControllers.downloadExpenses);
 
+router.get('/getDownloadedExpenses', userAuthentication.authenticate, expenseControllers.getDownloadedExpenses);
+
 module.exports = router;
