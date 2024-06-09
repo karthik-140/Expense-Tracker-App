@@ -1,6 +1,37 @@
 const expenses = require('../models/expenses');
 const users = require('../models/users');
 const sequelize = require('../util/database');
+const AWS = require('aws-sdk');
+
+const uploadToS3 = (data, fileName) => {
+  const BUCKET_NAME = process.env.BUCKET_NAME
+  const IAM_USER_KEY = process.env.IAM_USER_KEY
+  const IAM_USER_SECRET = process.env.IAM_USER_SECRET
+
+  let s3Bucket = new AWS.S3({
+    accessKeyId: IAM_USER_KEY,
+    secretAccessKey: IAM_USER_SECRET
+  })
+
+  let params = {
+    Bucket: BUCKET_NAME,
+    Key: fileName,
+    Body: data,
+    ACL: 'public-read',
+  }
+
+  return new Promise((resolve, reject) => {
+    s3Bucket.upload(params, (err, s3Response) => {
+      if (err) {
+        console.log(err)
+        reject(err)
+      } else {
+        console.log('s3Response', s3Response)
+        resolve(s3Response.Location)
+      }
+    })
+  })
+}
 
 exports.addExpense = async (req, res, next) => {
   const t = await sequelize.transaction()
@@ -73,6 +104,23 @@ exports.deleteExpense = async (req, res, next) => {
   } catch (err) {
     t.rollback()
     console.log('Server error!!', err);
+    res.status(500).json({ message: 'Server error!!', details: err })
+  }
+}
+
+exports.downloadExpenses = async (req, res, next) => {
+  try {
+    const expenses = await req.user.getExpenses({
+      attributes: ['amount', 'description', 'category']
+    })
+    const stringifiedExpenses = JSON.stringify(expenses)
+
+    const userId = req.user.id
+    const fileName = `Expense${userId}/${new Date()}.txt`
+    const fileUrl = await uploadToS3(stringifiedExpenses, fileName)
+    res.status(200).json({ fileUrl, success: true })
+  } catch (err) {
+    console.log(err);
     res.status(500).json({ message: 'Server error!!', details: err })
   }
 }

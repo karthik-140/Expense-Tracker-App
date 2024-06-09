@@ -1,9 +1,8 @@
 import { Table, TableHead, TableBody, TableCell, TableRow, Button } from "@mui/material"
-import { useDispatch } from "react-redux"
+import { useNavigate } from 'react-router-dom'
 
 import CustomPaper from "../../customComponents/CustomPaper"
 import { useGetLeaderboardQuery } from "../../api/ExpenseAPI"
-import { expenseActions } from "../../store/expenseSlice"
 
 const headers = [
   { label: 'S.no', field: 's.no' },
@@ -12,11 +11,11 @@ const headers = [
 ]
 
 const Leaderboard = () => {
-  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { data: leaderboard = [] } = useGetLeaderboardQuery()
 
   const leaderboardCloseHandler = () => {
-    dispatch(expenseActions.setShowLeaderboard(false))
+    navigate('/expense')
   }
 
   const displayLeaderboardRows = leaderboard?.map((user, index) => {

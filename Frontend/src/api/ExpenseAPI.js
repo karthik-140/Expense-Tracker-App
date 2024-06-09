@@ -34,7 +34,12 @@ export const expenseAPI = createApi({
         url: 'premium/leaderboard'
       }),
       providesTags: ['Leaderboard']
-    })
+    }),
+    downloadExpenses: builder.query({
+      query: () => ({
+        url: 'expense/download',
+      })
+    }),
   })
 })
 
@@ -43,4 +48,5 @@ export const {
   useGetExpensesQuery,
   useDeleteExpenseMutation,
   useGetLeaderboardQuery,
+  useLazyDownloadExpensesQuery,
 } = expenseAPI
