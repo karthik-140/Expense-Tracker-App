@@ -1,39 +1,10 @@
-const AWS = require('aws-sdk');
-
 const sequelize = require('../util/database');
 const expenses = require('../models/expenses');
 const users = require('../models/users');
 const DownloadedFiles = require('../models/downloadedFiles');
 
-const uploadToS3 = (data, fileName) => {
-  const BUCKET_NAME = process.env.BUCKET_NAME
-  const IAM_USER_KEY = process.env.IAM_USER_KEY
-  const IAM_USER_SECRET = process.env.IAM_USER_SECRET
-
-  let s3Bucket = new AWS.S3({
-    accessKeyId: IAM_USER_KEY,
-    secretAccessKey: IAM_USER_SECRET
-  })
-
-  let params = {
-    Bucket: BUCKET_NAME,
-    Key: fileName,
-    Body: data,
-    ACL: 'public-read',
-  }
-
-  return new Promise((resolve, reject) => {
-    s3Bucket.upload(params, (err, s3Response) => {
-      if (err) {
-        console.log(err)
-        reject(err)
-      } else {
-        console.log('s3Response', s3Response)
-        resolve(s3Response.Location)
-      }
-    })
-  })
-}
+const UserServices = require('../services/userServices');
+const S3Services = require('../services/s3Services');
 
 exports.addExpense = async (req, res, next) => {
   const t = await sequelize.transaction()
@@ -113,15 +84,15 @@ exports.deleteExpense = async (req, res, next) => {
 exports.downloadExpenses = async (req, res, next) => {
   const t = await sequelize.transaction()
   try {
-    const expenses = await req.user.getExpenses({
+    const expenses = await UserServices.getExpenses(req, {
       attributes: ['amount', 'description', 'category']
     })
     const stringifiedExpenses = JSON.stringify(expenses)
 
     const userId = req.user.id
     const fileName = `Expense${userId}/${new Date()}.txt`
-    const fileUrl = await uploadToS3(stringifiedExpenses, fileName)
-  
+    const fileUrl = await S3Services.uploadToS3(stringifiedExpenses, fileName)
+
     if (fileUrl) {
       await DownloadedFiles.create({ userId, fileUrl }, { transaction: t })
       await t.commit()
@@ -139,7 +110,7 @@ exports.downloadExpenses = async (req, res, next) => {
 exports.getDownloadedExpenses = async (req, res, next) => {
   try {
     const userId = req.user.id
-    const downloadedFiles = await DownloadedFiles.findAll({ where: { userId }})
+    const downloadedFiles = await DownloadedFiles.findAll({ where: { userId } })
     res.status(200).json(downloadedFiles)
   } catch (err) {
     console.log('Server error!!', err);
