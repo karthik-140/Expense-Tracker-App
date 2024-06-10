@@ -1,4 +1,5 @@
-import { Table, TableHead, TableBody, TableCell, TableRow, Button, TableContainer, Typography } from "@mui/material"
+import { useState } from "react";
+import { Table, TableHead, TableBody, TableCell, TableRow, Button, TableContainer, Typography, TablePagination } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector } from "react-redux";
 
@@ -14,6 +15,8 @@ const headers = [
 ]
 
 const ExpenseTable = ({ setShowExpenseTable }) => {
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
   const { isPremiumUser } = useSelector((state) => state.user)
 
   const { data: expenses = [] } = useGetExpensesQuery()
@@ -22,6 +25,15 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
 
   if (expenses?.response?.length === 0) {
     return <h1 className="text-center font-bold">No Expenses Found!!</h1>
+  }
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value)
+    setPage(0)
   }
 
   const deleteExpenseHandler = async (expense) => {
@@ -46,23 +58,24 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
     }
   }
 
-  const displayExpenseRows = expenses?.response?.map((expense, index) => {
-    return (
-      <TableRow key={`expense-${index}`}>
-        {headers.map((header, idx) => (
-          header.field === 's.no'
-            ? <TableCell key={'row'} align="center">{index + 1}</TableCell>
-            : <TableCell key={`row-${idx}`} align="center">{expense[header.field]}</TableCell>
-        ))}
-        <TableCell align="center">
-          <DeleteIcon
-            className='cursor-pointer text-red-500 hover:text-red-600'
-            onClick={() => deleteExpenseHandler(expense)}
-          />
-        </TableCell>
-      </TableRow>
-    )
-  })
+  const displayExpenseRows = expenses?.response?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    .map((expense, index) => {
+      return (
+        <TableRow key={`expense-${index}`}>
+          {headers.map((header, idx) => (
+            header.field === 's.no'
+              ? <TableCell key={'row'} align="center">{page * rowsPerPage + index + 1}</TableCell>
+              : <TableCell className='capitalize' key={`row-${idx}`} align="center">{expense[header.field]}</TableCell>
+          ))}
+          <TableCell align="center">
+            <DeleteIcon
+              className='cursor-pointer text-red-500 hover:text-red-600'
+              onClick={() => deleteExpenseHandler(expense)}
+            />
+          </TableCell>
+        </TableRow>
+      )
+    })
 
   return (
     <CustomPaper className='flex flex-col gap-6'>
@@ -113,16 +126,23 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
             {displayExpenseRows}
           </TableBody>
         </Table>
-        <div className="flex gap-4 self-center">
-          <Button
-            // className='self-center'
-            variant="outlined"
-            onClick={() => setShowExpenseTable(false)}
-          >
-            Close
-          </Button>
-        </div>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component="div"
+        count={expenses?.response?.length || 0}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <Button
+        className='self-center'
+        variant="outlined"
+        onClick={() => setShowExpenseTable(false)}
+      >
+        Close
+      </Button>
       {(isError || isSuccess)
         &&
         <Toast

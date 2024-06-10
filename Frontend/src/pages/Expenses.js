@@ -13,14 +13,14 @@ const Expenses = () => {
 
   return (
     <>
-      <ExpenseForm
-        showExpensesHandler={showExpensesHandler}
-      />
-      {showExpenseTable &&
+      {showExpenseTable
+        ?
         <>
           <ExpenseTable setShowExpenseTable={setShowExpenseTable} />
           <DowloadedFiles />
         </>
+        :
+        <ExpenseForm showExpensesHandler={showExpensesHandler} />
       }
     </>
   )

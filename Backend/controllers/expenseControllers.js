@@ -33,6 +33,18 @@ exports.addExpense = async (req, res, next) => {
 
 exports.getExpenses = async (req, res, next) => {
   try {
+    // Dynamic pagination code
+
+    // console.log('req.query--->', +req.query.page)
+    // const page = +req.query.page || 1
+    // const ITEMS_PER_PAGE = 5
+    // const response = await expenses.findAll(
+    //   {
+    //     where: { userId: req.user.id },
+    //     offset: (page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE
+    //   },
+    // )
+  
     const response = await expenses.findAll({ where: { userId: req.user.id } })
     if (response) {
       res.status(200).json({ message: 'Expenses fetched successfully!!', response })

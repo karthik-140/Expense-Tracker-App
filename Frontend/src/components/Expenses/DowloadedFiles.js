@@ -7,7 +7,7 @@ import { useGetDownloadedFilesQuery } from "../../api/ExpenseAPI"
 const headers = [
   { label: 'S.no', field: 's.no' },
   { label: 'Expense File', field: 'fileUrl' },
-  { label: 'Dowloaded Date', field: 'createdAt' },
+  { label: 'Downloaded Date', field: 'createdAt' },
 ]
 
 const DowloadedFiles = () => {
