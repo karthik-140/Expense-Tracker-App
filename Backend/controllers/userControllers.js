@@ -11,7 +11,7 @@ const isNotValidString = (value) => {
 }
 
 const generateAccessToken = (id, name, isPremiumUser) => {
-  return jwt.sign({ userId: id, name: name, isPremiumUser }, 'secretKey')
+  return jwt.sign({ userId: id, name: name, isPremiumUser }, process.env.JWT_SECRET_KEY)
 }
 
 exports.generateAccessToken = generateAccessToken;
