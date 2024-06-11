@@ -13,7 +13,7 @@ function CustomPaper(props) {
   return (
     <div className="flex justify-center max-w-full">
       <StyledPaper
-        className={`${className} lg:w-7/12 rounded-lg lg:mx-20 mt-4 mb-20 md:mx-10 sm:mx-5 sm:w-3/4 w-10/12`}
+        className={`${className} lg:w-7/12 rounded-lg lg:mx-20 mt-4 mb-10 md:mx-10 sm:mx-5 sm:w-3/4 w-10/12`}
         {...rest}
       />
     </div>

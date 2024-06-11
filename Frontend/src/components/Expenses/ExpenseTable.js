@@ -1,39 +1,25 @@
-import { useState } from "react";
-import { Table, TableHead, TableBody, TableCell, TableRow, Button, TableContainer, Typography, TablePagination } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useSelector } from "react-redux";
 
 import { useDeleteExpenseMutation, useLazyDownloadExpensesQuery, useGetExpensesQuery } from "../../api/ExpenseAPI"
-import CustomPaper from "../../customComponents/CustomPaper";
+import CustomTable from "../../customComponents/CustomTable";
 import Toast from "../../customComponents/Toast";
+import CustomLoading from '../../customComponents/CustomLoading';
 
 const headers = [
   { label: 'S.no', field: 's.no' },
   { label: 'Amount', field: 'amount' },
   { label: 'Description', field: 'description' },
   { label: 'Category', field: 'category' },
+  { label: '', field: 'delete' },
 ]
 
-const ExpenseTable = ({ setShowExpenseTable }) => {
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const { isPremiumUser } = useSelector((state) => state.user)
-
-  const { data: expenses = [] } = useGetExpensesQuery()
-  const [deleteExpense] = useDeleteExpenseMutation()
-  const [downloadExpenses, { isSuccess, isError }] = useLazyDownloadExpensesQuery()
+const ExpenseTable = () => {
+  const { data: expenses = [], isLoading: isExpensesLoading } = useGetExpensesQuery()
+  const [deleteExpense, { isLoading: isDeleteExpenseLoading, isError: isDeleteError }] = useDeleteExpenseMutation()
+  const [downloadExpenses, { isLoading: isDownloadExpensesLoading, isError: isDownloadExpensesError }] = useLazyDownloadExpensesQuery()
 
   if (expenses?.response?.length === 0) {
     return <h1 className="text-center font-bold">No Expenses Found!!</h1>
-  }
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
   }
 
   const deleteExpenseHandler = async (expense) => {
@@ -58,98 +44,44 @@ const ExpenseTable = ({ setShowExpenseTable }) => {
     }
   }
 
-  const displayExpenseRows = expenses?.response?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    .map((expense, index) => {
-      return (
-        <TableRow key={`expense-${index}`}>
-          {headers.map((header, idx) => (
-            header.field === 's.no'
-              ? <TableCell key={'row'} align="center">{page * rowsPerPage + index + 1}</TableCell>
-              : <TableCell className='capitalize' key={`row-${idx}`} align="center">{expense[header.field]}</TableCell>
-          ))}
-          <TableCell align="center">
-            <DeleteIcon
-              className='cursor-pointer text-red-500 hover:text-red-600'
-              onClick={() => deleteExpenseHandler(expense)}
-            />
-          </TableCell>
-        </TableRow>
-      )
-    })
+  const renderCell = (row, header) => {
+    switch (header.field) {
+      case 'amount':
+        return row.amount
+      case 'description':
+        return row.description
+      case 'category':
+        return row.category
+      case 'delete':
+        return (
+          <DeleteIcon
+            className='cursor-pointer text-red-500 hover:text-red-600'
+            onClick={() => deleteExpenseHandler(row)}
+          />
+        )
+      default:
+        return ''
+    }
+  }
 
   return (
-    <CustomPaper className='flex flex-col gap-6'>
-      <div className="flex justify-between">
-        <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: { xs: 15, sm: 15, md: 20, lg: 20 },
-          }}
-          variant="h6"
-          color='blue'
-        >
-          Expense Table
-        </Typography>
-        <Button
-          variant="outlined"
-          className="self-end"
-          disabled={!isPremiumUser}
-          onClick={downloadExpensesHandler}
-        >
-          Download
-        </Button>
-      </div>
-      <TableContainer className="flex flex-col justify-center gap-8">
-        <Table
-          stickyHeader
-          aria-label="sticky table"
-          className="border table-auto"
-        >
-          <TableHead className="uppercase" >
-            <TableRow>
-              {headers.map((header, idx) => (
-                <TableCell
-                  key={`header-${idx}`}
-                  align="center"
-                  style={{ backgroundColor: 'blue', color: 'white', fontWeight: 'bold' }}
-                >
-                  {header.label}
-                </TableCell>
-              ))}
-              <TableCell
-                align="center"
-                style={{ backgroundColor: 'blue', color: 'white', fontWeight: 'bold' }}
-              ></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayExpenseRows}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={expenses?.response?.length || 0}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-      <Button
-        className='self-center'
-        variant="outlined"
-        onClick={() => setShowExpenseTable(false)}
-      >
-        Close
-      </Button>
-      {(isError || isSuccess)
+    <>
+      {(isExpensesLoading || isDeleteExpenseLoading || isDownloadExpensesLoading) && <CustomLoading />}
+      {(isDeleteError || isDownloadExpensesError)
         &&
         <Toast
-          message={`${isError ? 'Failed!!' : 'Successful!!'}`}
-          severity={`${isError ? 'failed' : 'success'}`}
+          message={'Failed!!'}
+          severity={'error'}
         />}
-    </CustomPaper>
+      <CustomTable
+        headers={headers}
+        renderRows={renderCell}
+        rows={expenses?.response}
+        tableLabel={'Expense Table'}
+        showDownload={true}
+        downloadHandler={downloadExpensesHandler}
+      />
+    </>
   )
 }
 
