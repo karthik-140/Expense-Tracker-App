@@ -52,7 +52,7 @@ DownloadedFiles.belongsTo(users);
 sequelize
   .sync()
   .then(() => {
-    app.listen(process.env.PORT || 3001);
+    app.listen(process.env.PORT);
   })
   .catch((err) => {
     console.log(err)

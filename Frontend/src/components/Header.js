@@ -1,22 +1,25 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { useLazyGetPremiumQuery, useUpdateTransactionStatusMutation } from '../api/PurchaseAPI'
 import { userActions } from '../store/userSlice'
 
 const Header = () => {
-  const location = useLocation()
+  // const location = useLocation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isPremiumUser } = useSelector((state) => state.user)
+  const { isPremiumUser, isLoggedIn } = useSelector((state) => state.user)
 
   const [getPremium] = useLazyGetPremiumQuery()
   const [updateTransactionStatus] = useUpdateTransactionStatusMutation()
 
-  const showLogout = location.pathname !== '/'
+  // const showLogout = location.pathname !== '/'
 
   const logoutHandler = () => {
-    window.location.href = '/'      // temperory fix
+    // window.location.href = '/'      // temperory fix
+    localStorage.removeItem('token')
+    dispatch(userActions.setUserLogin(false))
+    navigate('/')
   }
 
   const redirectToRazorpayHandler = async () => {
@@ -57,7 +60,7 @@ const Header = () => {
       <nav className='align-center'>
         Expense Tracker
       </nav>
-      {showLogout &&
+      {isLoggedIn &&
         <div className='text-white flex gap-4 absolute right-8'>
           {isPremiumUser
             ?

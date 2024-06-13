@@ -53,6 +53,7 @@ const Signup = () => {
       const token = loginResponse?.data?.token
       localStorage.setItem('token', token)
       const isPremiumUser = loginResponse?.data?.response?.isPremiumUser === true
+      dispatch(userActions.setUserLogin(true))
       dispatch(userActions.setPremiumUser(isPremiumUser))
     } else {
       await signupUser(data)

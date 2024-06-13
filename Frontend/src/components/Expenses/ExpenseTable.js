@@ -19,7 +19,7 @@ const ExpenseTable = () => {
   const [downloadExpenses, { isLoading: isDownloadExpensesLoading, isError: isDownloadExpensesError }] = useLazyDownloadExpensesQuery()
 
   if (expenses?.response?.length === 0) {
-    return <h1 className="text-center font-bold">No Expenses Found!!</h1>
+    return <h1 className="mt-28 mb-10 text-center font-bold">No Expenses Found!!</h1>
   }
 
   const deleteExpenseHandler = async (expense) => {
